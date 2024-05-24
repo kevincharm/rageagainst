@@ -1,0 +1,29 @@
+{
+  "name": "ratu-poc",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start:uniswap-interface": "yarn ts-node src/main.ts ./dappdefs/uniswap-interface",
+    "start:tornado-mini": "yarn ts-node src/main.ts ./dappdefs/tornado-mini",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@1.22.19",
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/git-clone": "^0.2.4",
+    "@types/node": "18",
+    "prettier": "^3.2.5",
+    "ts-node": "10.9.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "ratu-nixpacks": "*",
+    "git-clone": "^0.2.0",
+    "smol-toml": "^1.2.0",
+    "zod": "^3.23.8"
+  }
+}

@@ -1,0 +1,18 @@
+providers = ["node", "python"]
+
+[phases.setup]
+aptPkgs = ["build-essential"]
+
+[phases.install]
+cmds = ["npm install -g corepack@0.24.1 && corepack enable && mkdir -p ./apps/web/src/utils/__generated__ && yarn install --check-cache"]
+
+[phases.build]
+cmds = ["cd ./apps/web && yarn craco build"]
+
+[start]
+cmd = "cd ./apps/web && yarn serve"
+
+[dapp]
+uid = "uniswap-interface"
+repository = "https://github.com/Uniswap/interface"
+ports = ["3000:3000"]

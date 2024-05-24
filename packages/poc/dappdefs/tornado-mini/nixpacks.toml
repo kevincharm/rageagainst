@@ -1,0 +1,9 @@
+providers = ["python"]
+
+[start]
+cmd = "python3 -m http.server 8080"
+
+[dapp]
+uid = "tornado-mini"
+repository = "https://github.com/tornadocash/ui-minified"
+ports = ["8080:8080"]

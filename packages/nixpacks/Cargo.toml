@@ -1,0 +1,26 @@
+[package]
+edition = "2021"
+name = "ratu_nixpacks"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+async-trait = "0.1.80"
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.12.2", default-features = false, features = ["napi4", "async"] }
+napi-derive = "2.12.2"
+nixpacks = "1.21.3-fixpipes"
+tar = "0.4.40"
+uuid = "1.8.0"
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
+strip = "symbols"
+
+[patch.crates-io]
+nixpacks = { git = "https://github.com/kevincharm/nixpacks.git", branch = "fix/pipes" }
