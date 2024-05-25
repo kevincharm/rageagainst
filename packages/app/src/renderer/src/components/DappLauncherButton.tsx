@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRun'
 import { DappStatusOptions, DappStatusResult } from 'src/common/types/DappStatus'
+import { DappStopOptions } from 'src/common/types/DappStop'
 
 interface DappLauncherButtonProps {
     dappUid: string
@@ -69,15 +70,28 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
         })
     }
 
+    const stopDapp = async () => {
+        await setDappStatus('unknown')
+        await window.electron.ipcRenderer.invoke('dapp:stop', {
+            dappUid,
+        } satisfies DappStopOptions)
+        refreshDappStatus()
+    }
+
     return (
         <div onClick={runDapp}>
             <h2>{dappUid}</h2>
             {runError && <div>{runError}</div>}
             <div>
                 {dappStatus === 'running' && dappUrl ? (
-                    <a target="_blank" href={dappUrl}>
-                        <button>Launch in browser</button>
-                    </a>
+                    <div>
+                        <a target="_blank" href={dappUrl}>
+                            <button>Launch in browser</button>
+                        </a>
+                        <button onClick={stopDapp}>Stop</button>
+                    </div>
+                ) : dappStatus === 'unknown' ? (
+                    <div>Loading...</div>
                 ) : (
                     <button onClick={runDapp} disabled={isBuilding || dappStatus === 'running'}>
                         Launch

@@ -50,6 +50,20 @@ export async function isDappContainerRunning(dappUid: string) {
     }
 }
 
+export async function isDappContainerStopped(dappUid: string) {
+    const containers = execSync(
+        `docker ps --format "{{.Names}},{{.Status}}" --filter name=${getContainerName(dappUid)} -a`,
+    )
+        .toString('utf-8')
+        .trim()
+        .split('\n')
+    if (containers.length > 0) {
+        return containers[0].split(',')[1]?.startsWith('Exited')
+    } else {
+        return false
+    }
+}
+
 function getMatchingImages(dappUid: string) {
     const existingImages = execSync(`docker images ${getImageName(dappUid)}`)
         .toString('utf-8')
@@ -88,7 +102,18 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
         return dappUrl
     }
 
-    // 2. Check if image exists, otherwise build it
+    // 2a. Check if container is stopped
+    const isStopped = await isDappContainerStopped(config.dapp.uid)
+    if (isStopped) {
+        // Just restart it
+        const result = execSync(`docker restart ${getContainerName(config.dapp.uid)}`, {
+            stdio: 'inherit',
+        })
+        console.log(`Restarted ${getContainerName(config.dapp.uid)}:`, result?.toString('utf-8'))
+        return dappUrl
+    }
+
+    // 2b.i. Check if image exists, otherwise build it
     const existingImages = getMatchingImages(config.dapp.uid)
     let imageName: string
     if (existingImages.length > 0 && !shouldReset) {
@@ -98,7 +123,7 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
         imageName = await buildDockerImage(config)
     }
 
-    // 3. Run the container
+    // 2b.ii. Run the container
     console.log(`Running container for ${imageName}...`)
     const exposePorts = config.dapp.ports || []
     const cmd: string = [
@@ -111,7 +136,7 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
         imageName,
     ].join(' ')
     const dockerRunResult = execSync(cmd, { stdio: 'inherit' })
-    console.log('Result:', dockerRunResult?.toString('utf-8'))
+    console.log('Launched container:', dockerRunResult?.toString('utf-8'))
 
     return dappUrl
 }
@@ -156,4 +181,16 @@ export async function getDappConfig(dappUid: string): Promise<DappConfig> {
 export async function launch(dappUid: string, shouldReset?: boolean): Promise<string> {
     const config = await getDappConfig(dappUid)
     return buildAndRun(config, shouldReset)
+}
+
+export async function stop(dappUid: string) {
+    const isRunning = await isDappContainerRunning(dappUid)
+    if (!isRunning) {
+        console.log(`Container for ${dappUid} is not running`)
+        return
+    }
+
+    const cmd = `docker stop ${getContainerName(dappUid)}`
+    const dockerStopResult = execSync(cmd, { stdio: 'inherit' })
+    console.log('Result:', dockerStopResult?.toString('utf-8'))
 }
