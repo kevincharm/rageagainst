@@ -7,6 +7,7 @@ import { execSync } from 'child_process'
 import { parse as parseToml, stringify as serialiseToml } from 'smol-toml'
 import { DappConfigSchema, type DappConfig } from '../../common/types/DappConfigSchema'
 import * as os from 'node:os'
+import { get } from 'node:http'
 
 function getImageName(dappUid: string) {
     return `dapp-packer/${dappUid}`
@@ -49,6 +50,28 @@ export async function isDappContainerRunning(dappUid: string) {
     }
 }
 
+function getMatchingImages(dappUid: string) {
+    const existingImages = execSync(`docker images ${getImageName(dappUid)}`)
+        .toString('utf-8')
+        .trim()
+        .split('\n')
+        .map((line) => line.split(/\s+/)[0])
+        .slice(1)
+    return existingImages
+}
+
+export async function getDappStatus(
+    dappUid: string,
+): Promise<'running' | 'stopped' | 'nonexistent'> {
+    const isRunning = await isDappContainerRunning(dappUid)
+    if (isRunning) return 'running'
+
+    const existingImages = getMatchingImages(dappUid)
+    if (existingImages.length > 0) return 'stopped'
+
+    return 'nonexistent'
+}
+
 /**
  * Build docker image (if required) then launch the container serving the dapp
  *
@@ -66,12 +89,7 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
     }
 
     // 2. Check if image exists, otherwise build it
-    const existingImages = execSync(`docker images ${getImageName(config.dapp.uid)}`)
-        .toString('utf-8')
-        .trim()
-        .split('\n')
-        .map((line) => line.split(/\s+/)[0])
-        .slice(1)
+    const existingImages = getMatchingImages(config.dapp.uid)
     let imageName: string
     if (existingImages.length > 0 && !shouldReset) {
         console.log(`Found existing images for ${config.dapp.uid}:`, existingImages)
@@ -122,7 +140,7 @@ export async function updateDappDefs(): Promise<string> {
     return dappDefsPath
 }
 
-export async function launch(dappUid: string, shouldReset?: boolean): Promise<string> {
+export async function getDappConfig(dappUid: string): Promise<DappConfig> {
     const dappDefsPath = await updateDappDefs()
     const configPath = path.resolve(dappDefsPath, `${dappUid}/nixpacks.toml`)
     const config = DappConfigSchema.parse(
@@ -132,5 +150,10 @@ export async function launch(dappUid: string, shouldReset?: boolean): Promise<st
             }),
         ),
     )
+    return config
+}
+
+export async function launch(dappUid: string, shouldReset?: boolean): Promise<string> {
+    const config = await getDappConfig(dappUid)
     return buildAndRun(config, shouldReset)
 }

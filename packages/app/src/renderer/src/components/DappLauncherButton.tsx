@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRun'
+import { DappStatusOptions, DappStatusResult } from 'src/common/types/DappStatus'
 
 interface DappLauncherButtonProps {
     dappUid: string
@@ -10,7 +11,24 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
     const [runError, setRunError] = useState<string>('')
     const [isBuilding, setIsBuilding] = useState<boolean>(false)
     const [dappUrl, setDappUrl] = useState<string>('')
-    const isRunning = !!dappUrl
+    const [dappStatus, setDappStatus] = useState<'running' | 'stopped' | 'nonexistent' | 'unknown'>(
+        'unknown',
+    )
+
+    const refreshDappStatus = async () =>
+        window.electron.ipcRenderer
+            .invoke('dapp:status', {
+                dappUid,
+            } satisfies DappStatusOptions)
+            .then((result: DappStatusResult) => {
+                setDappStatus(result.status)
+                setDappUrl(result.dappUrl)
+                return result
+            })
+    // Run on startup
+    useEffect(() => {
+        refreshDappStatus()
+    }, [])
 
     useEffect(() => {
         window.electron.ipcRenderer.on('dapp:launched', (_, result: DappRunLaunchedResult) => {
@@ -25,6 +43,7 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
             } else {
                 setIsBuilding(false)
                 setDappUrl(result.dappUrl)
+                refreshDappStatus()
             }
         })
 
@@ -33,7 +52,10 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
         }
     }, [runCorrId])
 
-    const runDapp = () => {
+    const runDapp = async () => {
+        const statusResult = await refreshDappStatus()
+        if (isBuilding || statusResult.status === 'running') return // disabled
+
         setRunCorrId((corrId) => {
             if (corrId) return corrId // do nothing
 
@@ -50,17 +72,18 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
     return (
         <div onClick={runDapp}>
             <h2>{dappUid}</h2>
-            <button onClick={runDapp} disabled={isBuilding || isRunning}>
-                Launch
-            </button>
             {runError && <div>{runError}</div>}
-            {isRunning && (
-                <div>
+            <div>
+                {dappStatus === 'running' && dappUrl ? (
                     <a target="_blank" href={dappUrl}>
-                        Launch in browser
+                        <button>Launch in browser</button>
                     </a>
-                </div>
-            )}
+                ) : (
+                    <button onClick={runDapp} disabled={isBuilding || dappStatus === 'running'}>
+                        Launch
+                    </button>
+                )}
+            </div>
         </div>
     )
 }
