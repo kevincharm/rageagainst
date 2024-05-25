@@ -1,6 +1,8 @@
+import { DappConfig } from './DappConfigSchema'
+
 interface DappListResultSuccess {
     status: 'success'
-    dappUids: string[]
+    dapps: DappConfig[]
 }
 
 interface DappListResultError {

@@ -6,9 +6,10 @@ import bg from '../assets/rageagainsteu-bg.png'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { PlusIcon } from '@heroicons/react/20/solid'
+import { DappConfig } from 'src/common/types/DappConfigSchema'
 
 export function DappList() {
-    const [dappUids, setDappUids] = useState<string[]>([])
+    const [dappUids, setDappUids] = useState<DappConfig[]>([])
     const [error, setError] = useState<string>('')
 
     useEffect(() => {
@@ -17,7 +18,7 @@ export function DappList() {
                 console.error('Failed to list dapps', result.error)
                 setError(result.error)
             } else {
-                setDappUids(result.dappUids)
+                setDappUids(result.dapps)
             }
         })
 
@@ -139,8 +140,8 @@ export function DappList() {
                     role="list"
                     className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
-                    {dappUids.map((dappUid) => (
-                        <DappLauncherButton key={dappUid} dappUid={dappUid} />
+                    {dappUids.map((config) => (
+                        <DappLauncherButton key={config.dapp.uid} config={config} />
                     ))}
                 </ul>
             </div>

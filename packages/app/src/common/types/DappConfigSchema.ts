@@ -4,6 +4,8 @@ import { NixpacksTomlSchema } from './NixpacksSchema'
 export const DappConfigSchema = NixpacksTomlSchema.extend({
     dapp: z.object({
         uid: z.string(),
+        displayName: z.string().optional(),
+        iconUri: z.string().optional(),
         repository: z.string(),
         tag: z.string().optional(),
         /** Where the app will be served */

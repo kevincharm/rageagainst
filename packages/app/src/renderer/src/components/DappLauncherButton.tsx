@@ -3,12 +3,13 @@ import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/type
 import { DappStatusOptions, DappStatusResult } from 'src/common/types/DappStatus'
 import { DappStopOptions } from 'src/common/types/DappStop'
 import { StopCircleIcon } from '@heroicons/react/20/solid'
+import { DappConfig } from 'src/common/types/DappConfigSchema'
 
 interface DappLauncherButtonProps {
-    dappUid: string
+    config: DappConfig
 }
 
-export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
+export function DappLauncherButton({ config }: DappLauncherButtonProps) {
     const [runCorrId, setRunCorrId] = useState<string | null>(null)
     const [runError, setRunError] = useState<string>('')
     const [isBuilding, setIsBuilding] = useState<boolean>(false)
@@ -16,6 +17,7 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
     const [dappStatus, setDappStatus] = useState<'running' | 'stopped' | 'nonexistent' | 'unknown'>(
         'unknown',
     )
+    const dappUid = config.dapp.uid
 
     const refreshDappStatus = async () =>
         window.electron.ipcRenderer
@@ -91,6 +93,9 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
     }
 
     const isLoading = dappStatus === 'unknown' || isBuilding
+    const iconUri =
+        config.dapp.iconUri ||
+        'https://upload.wikimedia.org/wikipedia/commons/2/2f/Tornado_cash_logo.jpg' /** TODO */
 
     return (
         <li className="relative">
@@ -111,9 +116,7 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
                     {isLoading ? (
                         <>
                             <img
-                                src={
-                                    'https://upload.wikimedia.org/wikipedia/commons/2/2f/Tornado_cash_logo.jpg' /** TODO */
-                                }
+                                src={iconUri}
                                 alt=""
                                 className="brightness-50 w-[4rem] rounded-2xl m-auto pointer-events-none object-cover group-hover:opacity-75 group-hover:scale-110 transition ease-linear shadow-lg"
                             />
@@ -143,9 +146,7 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
                         </>
                     ) : (
                         <img
-                            src={
-                                'https://upload.wikimedia.org/wikipedia/commons/2/2f/Tornado_cash_logo.jpg' /** TODO */
-                            }
+                            src={iconUri}
                             alt=""
                             className="w-[4rem] rounded-2xl m-auto pointer-events-none object-cover group-hover:opacity-75 group-hover:scale-110 transition ease-linear shadow-lg"
                         />
@@ -158,7 +159,7 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
                     {dappUid}
                 </p>
                 <p className="pointer-events-none block text-sm text-center font-medium text-gray-500 group-hover:scale-105 transition ease-linear">
-                    v1.0.0{/** TODO */}
+                    {config.dapp.tag || 'latest'}
                 </p>
             </div>
         </li>
