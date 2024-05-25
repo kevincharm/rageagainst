@@ -3,9 +3,7 @@ import { DappList } from './components/DappList'
 function App(): JSX.Element {
     return (
         <>
-            <div>
-                <DappList />
-            </div>
+            <DappList />
         </>
     )
 }

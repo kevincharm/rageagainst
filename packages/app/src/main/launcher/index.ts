@@ -7,7 +7,6 @@ import { execSync } from 'child_process'
 import { parse as parseToml, stringify as serialiseToml } from 'smol-toml'
 import { DappConfigSchema, type DappConfig } from '../../common/types/DappConfigSchema'
 import * as os from 'node:os'
-import { get } from 'node:http'
 
 function getImageName(dappUid: string) {
     return `dapp-packer/${dappUid}`
