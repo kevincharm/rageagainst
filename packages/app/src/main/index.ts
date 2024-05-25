@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import setupDappRun from './ipc/dapp/run'
+import setupDappList from './ipc/dapp/list'
 
 function createWindow(): void {
     // Create the browser window.
@@ -52,6 +53,7 @@ app.whenReady().then(() => {
 
     // IPC
     setupDappRun()
+    setupDappList()
 
     createWindow()
 

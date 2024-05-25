@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRunOptions'
+import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRun'
 
 interface DappLauncherButtonProps {
     dappUid: string
@@ -55,9 +55,11 @@ export function DappLauncherButton({ dappUid }: DappLauncherButtonProps) {
             </button>
             {runError && <div>{runError}</div>}
             {isRunning && (
-                <a target="_blank" href={dappUrl}>
-                    Launch in browser
-                </a>
+                <div>
+                    <a target="_blank" href={dappUrl}>
+                        Launch in browser
+                    </a>
+                </div>
             )}
         </div>
     )

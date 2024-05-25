@@ -92,13 +92,13 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
         getContainerName(config.dapp.uid),
         imageName,
     ].join(' ')
-    const dockerRunResult = execSync(cmd, { stdio: 'inherit' }).toString('utf-8')
-    console.log('Result:', dockerRunResult)
+    const dockerRunResult = execSync(cmd, { stdio: 'inherit' })
+    console.log('Result:', dockerRunResult?.toString('utf-8'))
 
     return dappUrl
 }
 
-export async function launch(dappUid: string, shouldReset?: boolean): Promise<string> {
+export async function updateDappDefs(): Promise<string> {
     // Ensure dappdefs git repo is cloned and up to date
     const baseAppPath = path.resolve(os.homedir(), '.ratu')
     const dappDefsPath = path.resolve(baseAppPath, 'dappdefs')
@@ -119,7 +119,11 @@ export async function launch(dappUid: string, shouldReset?: boolean): Promise<st
             cwd: dappDefsPath,
         })
     }
+    return dappDefsPath
+}
 
+export async function launch(dappUid: string, shouldReset?: boolean): Promise<string> {
+    const dappDefsPath = await updateDappDefs()
     const configPath = path.resolve(dappDefsPath, `${dappUid}/nixpacks.toml`)
     const config = DappConfigSchema.parse(
         parseToml(

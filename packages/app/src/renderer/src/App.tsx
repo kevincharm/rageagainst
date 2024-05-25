@@ -1,10 +1,10 @@
-import { DappLauncherButton } from './components/DappLauncherButton'
+import { DappList } from './components/DappList'
 
 function App(): JSX.Element {
     return (
         <>
             <div>
-                <DappLauncherButton dappUid="tornado-mini" />
+                <DappList />
             </div>
         </>
     )

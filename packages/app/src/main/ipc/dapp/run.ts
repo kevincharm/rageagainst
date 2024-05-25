@@ -1,5 +1,5 @@
 import { launch } from '../../launcher'
-import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRunOptions'
+import type { DappRunLaunchedResult, DappRunOptions } from '../../../common/types/DappRun'
 import { ipcMain } from 'electron'
 
 export default async function setup() {
