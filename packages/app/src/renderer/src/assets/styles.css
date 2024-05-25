@@ -16,3 +16,12 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
         monospace;
 }
+
+.dapp-button-container .actions {
+    transition: opacity ease 150ms;
+    opacity: 0;
+}
+
+.dapp-button-container:hover .actions {
+    opacity: 1;
+}
