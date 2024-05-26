@@ -41,6 +41,7 @@
     "electron-vite": "^2.0.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
+    "fix-path": "^4.0.0",
     "prettier": "^3.2.4",
     "ratu-nixpacks": "*",
     "react": "^18.2.0",
