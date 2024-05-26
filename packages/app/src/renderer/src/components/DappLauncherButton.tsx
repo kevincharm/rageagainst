@@ -156,7 +156,7 @@ export function DappLauncherButton({ config }: DappLauncherButtonProps) {
                     <span className="sr-only">View details for {dappUid}</span>
                 </button>
                 <p className="pointer-events-none mt-4 block truncate text-center text-sm font-medium text-gray-900 group-hover:scale-105 transition ease-linear">
-                    {dappUid}
+                    {config.dapp.displayName || dappUid}
                 </p>
                 <p className="pointer-events-none block text-sm text-center font-medium text-gray-500 group-hover:scale-105 transition ease-linear">
                     {config.dapp.tag || 'latest'}

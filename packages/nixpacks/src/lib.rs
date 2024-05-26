@@ -43,6 +43,6 @@ use napi::tokio;
 #[tokio::test]
 async fn test_build_image() {
     let name = "test_build_image_name".to_string();
-    let path = "/tmp/b40c219f-8015-482d-88e3-77f1ae88dca7/uniswap-interface".to_string();
+    let path = "/tmp/316ed657-4a15-4d55-b7f7-ab17f4634f65/curve".to_string();
     build_image(name, path).await.unwrap();
 }
