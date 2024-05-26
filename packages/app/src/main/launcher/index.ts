@@ -1,4 +1,3 @@
-import { buildImage } from 'ratu-nixpacks'
 import path from 'node:path'
 import fs from 'fs/promises'
 import { randomUUID } from 'node:crypto'
@@ -31,8 +30,11 @@ async function buildDockerImage(config: DappConfig): Promise<string> {
         })
     }
 
-    const imageName = await buildImage(getImageName(config.dapp.uid), repoPath)
-    console.log(`Built image: ${imageName}`)
+    const imageName = getImageName(config.dapp.uid)
+    const nixpacksOutput = execSync(
+        `nixpacks build --name ${imageName} --config ${path.resolve(repoPath, 'nixpacks.toml')} --env YARN_ENABLE_IMMUTABLE_INSTALLS=false --verbose ${repoPath}`,
+    ).toString('utf-8')
+    console.log(nixpacksOutput)
     return imageName
 }
 
@@ -123,6 +125,19 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
     }
 
     // 2b.ii. Run the container
+    try {
+        console.log(`Stopping existing containers`)
+        const killResult = execSync(`docker kill ${getContainerName(config.dapp.uid)}`, {
+            stdio: 'inherit',
+        })?.toString('utf-8')
+        console.log(killResult)
+        const rmResult = execSync(`docker container rm ${getContainerName(config.dapp.uid)}`, {
+            stdio: 'inherit',
+        })?.toString('utf-8')
+        console.log(rmResult)
+    } catch (err) {
+        console.warn('Did not stop any existing containers')
+    }
     console.log(`Running container for ${imageName}...`)
     const exposePorts = config.dapp.ports || []
     const cmd: string = [
@@ -134,8 +149,12 @@ export async function buildAndRun(config: DappConfig, shouldReset?: boolean): Pr
         getContainerName(config.dapp.uid),
         imageName,
     ].join(' ')
-    const dockerRunResult = execSync(cmd, { stdio: 'inherit' })
-    console.log('Launched container:', dockerRunResult?.toString('utf-8'))
+    try {
+        const dockerRunResult = execSync(cmd, { stdio: 'inherit' })
+        console.log('Launched container:', dockerRunResult?.toString('utf-8'))
+    } catch (err) {
+        console.warn(`Launch container may have errored for ${config.dapp.uid}:`, err)
+    }
 
     return dappUrl
 }

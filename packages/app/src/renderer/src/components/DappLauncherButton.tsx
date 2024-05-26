@@ -57,8 +57,9 @@ export function DappLauncherButton({ config }: DappLauncherButtonProps) {
     }, [runCorrId])
 
     const runDapp = async () => {
+        if (isBuilding) return // disabled
         const statusResult = await refreshDappStatus()
-        if (isBuilding || statusResult.status === 'running') return // disabled
+        if (statusResult.status === 'running') return // disabled
 
         setRunCorrId((corrId) => {
             if (corrId) return corrId // do nothing
