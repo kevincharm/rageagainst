@@ -13,3 +13,7 @@ Run local frontends of your favourite dapps, use them like you usually do!
     - [nixpacks](https://nixpacks.com/docs/install)
 2. Download the latest release from the releases page -->
 3. Install & launch the app!
+
+## Add new dApps
+
+Head over to https://github.com/kevincharm/dappdefs to add dApp configurations and enable more dApps to be run locally!
